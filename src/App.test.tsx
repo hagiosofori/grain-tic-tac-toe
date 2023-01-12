@@ -1,24 +1,19 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import App from "./App";
+import App, { players } from "./App";
 import * as fc from "fast-check";
-import { createSquares } from "./TicTacToe";
+import TicTacToe, { createSquares } from "./TicTacToe";
+import { initialGameState, reducer, determineNextPlayer } from "./App";
+import userEvent from "@testing-library/user-event";
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
-  render(<App />);
-
-  const squares = await screen.findAllByRole("button");
+  const { container } = render(<App />);
+  const squares = container.querySelectorAll("tbody button");
 
   squares.forEach((each) => {
     expect(each.textContent).toEqual("");
   });
-
-  expect(squares).toMatchInlineSnapshot(`
-Array [
-  <button />,
-]
-`);
 });
 
 // property based test. commented out cos it takes a long time to run
@@ -40,7 +35,6 @@ test(`createSquares fn - creates the correct dimension of squares`, () => {
   const inputs = [3, 4, 5, 6];
   inputs.forEach((each) => {
     const result = createSquares(each);
-    console.log('result -> ', result);
 
     const outerArrayHasCorrectLenght = result.length === each;
     const innerArraysHaveCorrectLength = result.reduce((acc, square) => {
@@ -52,9 +46,49 @@ test(`createSquares fn - creates the correct dimension of squares`, () => {
   });
 });
 
-test.todo(`given that the game state contains player symbols
+test(`given that the game state contains player symbols
+when the reset action is triggered
+then the squares should all become empty`, () => {
+  const gameState = {
+    ...initialGameState,
+    board: [["x", "x", "o"], ...createSquares(initialGameState.numSquares - 1)],
+  };
+
+  const updatedGameState = reducer(gameState, { type: "Reset" });
+
+  expect(updatedGameState.board).toEqual(initialGameState.board);
+});
+
+test(`given that the game is rendered
 when the reset button is clicked
-then the squares should all become empty`);
+then the reset action should be dispatched`, () => {
+  const dispatch = jest.fn();
+  render(<TicTacToe dispatch={dispatch} gameState={initialGameState} />);
+
+  const resetButton = screen.getByRole("button", { name: "Reset" });
+  userEvent.click(resetButton);
+  expect(dispatch).toHaveBeenCalledWith({ type: "Reset" });
+});
+
+test(`determineNextPlayer -- correctly determines the next player index based on current player and players list`, () => {
+  expect(
+    determineNextPlayer(0, [
+      { name: "player1", symbol: "*" },
+      { name: "player2", symbol: "+" },
+    ])
+  ).toEqual(1);
+
+  expect(determineNextPlayer(0, [{ name: "player1", symbol: "*" }])).toEqual(0);
+
+  expect(
+    determineNextPlayer(1, [
+      { name: "player1", symbol: "*" },
+      { name: "player2", symbol: "+" },
+      { name: "player3", symbol: "t" },
+    ])
+  ).toEqual(2);
+});
+
 
 test.todo(`given that the current player is player x
 when player x clicks on an empty square

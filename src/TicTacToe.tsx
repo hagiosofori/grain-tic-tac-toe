@@ -1,18 +1,35 @@
-import { GameState } from "./types";
+import { GameState, ActionTypes, Action } from "./types";
 
-function TicTacToe({ gameState }: { gameState: GameState }) {
+function TicTacToe({
+  gameState,
+  dispatch,
+}: {
+  gameState: GameState;
+  dispatch: React.Dispatch<Action>;
+}) {
   const { board } = gameState;
 
   return (
     <div>
+      <button
+        onClick={() => {
+          dispatch({ type: "Reset" });
+        }}
+      >
+        Reset
+      </button>
       <table>
-        {board.map((row, rIndex) => (
-          <tr key={rIndex}>
-            {row.map((cell, i) => (
-              <td key={`${i}${cell}`}><button>{cell}</button></td>
-            ))}
-          </tr>
-        ))}
+        <tbody>
+          {board.map((row, rIndex) => (
+            <tr key={rIndex}>
+              {row.map((cell, i) => (
+                <td key={`${i}${cell}`}>
+                  <button>{cell}</button>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );

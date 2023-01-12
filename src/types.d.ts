@@ -1,3 +1,21 @@
 export interface GameState {
-  board: Array<Array<"x" | "o" | "">>;
+  board: Array<Array<Player1["symbol"] | Player2["symbol"] | "">>;
+  numSquares: 3 | 4 | 5 | 6;
+  currentPlayerIndex: number;
+}
+
+interface Player{
+  name: string;
+  symbol: string;
+}
+
+export interface Action {
+  type: ActionTypes;
+  data?: any;
+}
+
+export type ActionTypes = "Reset" | "UpdateNumSquares" | "MarkSquare";
+
+interface UpdateNumSquaresData {
+  numSquares: GameState["numSquares"];
 }
