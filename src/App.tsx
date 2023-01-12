@@ -17,13 +17,11 @@ export const players: Player[] = [
   { name: "Player 2", symbol: "o" },
 ];
 
+const DEFAULT_NUM_SQUARES = 3;
+
 export const initialGameState: GameState = {
-  board: [
-    ["", "", ""],
-    ["", "", ""],
-    ["", "", ""],
-  ],
-  numSquares: 3,
+  board: createSquares(DEFAULT_NUM_SQUARES),
+  numSquares: DEFAULT_NUM_SQUARES,
   currentPlayerIndex: 0,
   status: "inProgress",
   errorMsg: "",
@@ -37,33 +35,35 @@ const reducerConfig: Record<
   ActionTypes,
   (state: GameState, data?: any) => GameState
 > = {
-  Reset: (state: GameState) => ({
-    ...state,
-    board: createSquares(state.numSquares),
-  }),
-  UpdateNumSquares: (
-    state: GameState,
-    data: { numSquares: GameState["numSquares"] }
-  ) => ({
-    ...state,
-    numSquares: data.numSquares,
-  }),
+  Reset: getInitialGameState,
+
   MarkSquare: (
     state: GameState,
     data: { coords: [number, number]; players: Player[] }
   ) => {
     const [x, y] = data.coords;
+
     if (state.board[x][y]) return state;
     if (state.status === "foundAWinner") return state;
 
     const stateCopy = cloneDeep(state);
-    stateCopy.board[x][y] = players[state.currentPlayerIndex].symbol;
+    const row = stateCopy.board[x];
+    console.log("row ->", row);
+    row[y] = players[state.currentPlayerIndex].symbol;
+
     return {
-      ...state,
-      board: stateCopy.board,
+      ...stateCopy,
+      currentPlayerIndex: determineNextPlayer(
+        state.currentPlayerIndex,
+        players
+      ),
     };
   },
-  UpdateGameSize: (state: GameState, data: { value: number }) => {
+
+  UpdateGameSize: (
+    state: GameState,
+    data: { value: GameState["numSquares"] }
+  ) => {
     return {
       ...state,
       numSquares: data.value,

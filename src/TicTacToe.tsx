@@ -1,5 +1,7 @@
-import { GameState, ActionTypes, Action } from "./types";
-import { players, initialGameState } from "./App";
+import { GameState, Action } from "./types";
+import { players } from "./App";
+
+const sizes = [3, 4, 5, 6];
 
 function TicTacToe({
   gameState,
@@ -19,10 +21,26 @@ function TicTacToe({
       >
         Reset
       </button>
+      <div>
+        {sizes.map((value) => (
+          <label key={value}>
+            <input
+              data-testdata={value}
+              type="radio"
+              checked={gameState.numSquares === value}
+              onClick={() => {
+                dispatch({ type: "UpdateGameSize", data: { value } });
+              }}
+              onChange={() => {}}
+            />
+            {value}
+          </label>
+        ))}
+      </div>
       <table>
         <tbody>
           {board.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr key={`${rowIndex}a`}>
               {row.map((cell, cellIndex) => (
                 <td key={`${rowIndex}${cellIndex}`}>
                   <button

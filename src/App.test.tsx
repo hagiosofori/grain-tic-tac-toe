@@ -1,14 +1,15 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import App, { players } from "./App";
 import * as fc from "fast-check";
 import TicTacToe, { createSquares } from "./TicTacToe";
-import {
+import App, {
+  players,
   reducer,
   determineNextPlayer,
   getInitialGameState,
 } from "./App";
 import userEvent from "@testing-library/user-event";
+import { ActionTypes } from "./types";
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
@@ -149,6 +150,10 @@ test(`given that the game state has some symbols
 when the number of squares is changed
 then the game state should be reset, and the squares should be empty`, () => {
   const initialGameState = getInitialGameState();
+  initialGameState.board[0][0] = players[0].symbol;
+  const { rerender } = render(
+    <TicTacToe dispatch={jest.fn()} gameState={initialGameState} />
+  );
 
   [3, 4, 5, 6].forEach((size) => {
     const finalGameState = reducer(initialGameState, {
@@ -156,18 +161,60 @@ then the game state should be reset, and the squares should be empty`, () => {
       data: { value: size },
     });
 
-    console.log("final game state -> ", finalGameState);
+    rerender(<TicTacToe dispatch={jest.fn()} gameState={finalGameState} />);
 
-    render(<TicTacToe dispatch={jest.fn()} gameState={finalGameState} />);
-
-    expect(screen.getAllByTestId("square").length).toEqual(size * size);
+    const squares = screen.getAllByTestId("square");
     expect(finalGameState.numSquares).toEqual(size);
+    expect(squares.length).toEqual(size * size);
+
+    squares.forEach((square) => {
+      expect(square.textContent).toEqual("");
+    });
   });
 });
 
+test(`given that the game is in progress,
+when the size control is clicked
+then the dispatch function should be called with {type: UpdateGameSize, data:{value: number}}`, () => {
+  const dispatch = jest.fn();
+  render(<TicTacToe dispatch={dispatch} gameState={getInitialGameState()} />);
+
+  const sizeControls = screen.getAllByRole("radio");
+
+  sizeControls.forEach((control) => {
+    const value = parseInt(control.dataset["testdata"] || "0");
+    userEvent.click(control);
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "UpdateGameSize" as ActionTypes,
+      data: { value },
+    });
+  });
+});
+
+test(`given that the no plays have been made yet
+when the first play is made
+then only the square where the play was made should have a value`, () => {
+  const initialGameState = { ...getInitialGameState(), currentPlayerIndex: 0 };
+
+  const updatedGameState = reducer(initialGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+
+  expect(updatedGameState.board[0][0]).toEqual(players[0].symbol);
+
+  for (let i = 0; i < updatedGameState.board.length; i++) {
+    for (let j = 0; j < updatedGameState.board[i].length; i++) {
+      if (i === 0 && j === 0) continue;
+      console.log("i,j", { i, j });
+      expect(updatedGameState.board[i][j]).toEqual("");
+    }
+  }
+});
+
 test.todo(`given that the game is in progress
-when the current player is player x
-then the text should show that its player x's turn`);
+when the current player plays
+the currentPlayerIndex should shift to the next player`);
 
 test.todo(`given that the game is rendered
 when the number of squares has been set to x by x

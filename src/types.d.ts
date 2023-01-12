@@ -18,7 +18,6 @@ export interface Action {
 
 export type ActionTypes =
   | "Reset"
-  | "UpdateNumSquares"
   | "MarkSquare"
   | "UpdateGameSize";
 
