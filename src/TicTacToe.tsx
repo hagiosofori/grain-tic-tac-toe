@@ -1,4 +1,5 @@
 import { GameState, ActionTypes, Action } from "./types";
+import { players, initialGameState } from "./App";
 
 function TicTacToe({
   gameState,
@@ -20,11 +21,22 @@ function TicTacToe({
       </button>
       <table>
         <tbody>
-          {board.map((row, rIndex) => (
-            <tr key={rIndex}>
-              {row.map((cell, i) => (
-                <td key={`${i}${cell}`}>
-                  <button>{cell}</button>
+          {board.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={`${rowIndex}${cellIndex}`}>
+                  <button
+                    data-testid="square"
+                    type="button"
+                    onClick={() => {
+                      dispatch({
+                        type: "MarkSquare",
+                        data: { coords: [rowIndex, cellIndex], players },
+                      });
+                    }}
+                  >
+                    {cell}
+                  </button>
                 </td>
               ))}
             </tr>

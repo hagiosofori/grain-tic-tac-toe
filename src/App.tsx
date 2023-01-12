@@ -2,6 +2,7 @@ import { useReducer } from "react";
 import "./App.css";
 import TicTacToe, { createSquares } from "./TicTacToe";
 import { GameState, Action, ActionTypes, Player } from "./types";
+import cloneDeep from "lodash.clonedeep";
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialGameState);
@@ -24,7 +25,13 @@ export const initialGameState: GameState = {
   ],
   numSquares: 3,
   currentPlayerIndex: 0,
+  status: "inProgress",
+  errorMsg: "",
 };
+
+export function getInitialGameState(): GameState {
+  return { ...initialGameState, board: [...initialGameState.board] };
+}
 
 const reducerConfig: Record<
   ActionTypes,
@@ -46,11 +53,22 @@ const reducerConfig: Record<
     data: { coords: [number, number]; players: Player[] }
   ) => {
     const [x, y] = data.coords;
-    state.board[x][y] = players[state.currentPlayerIndex].symbol;
+    if (state.board[x][y]) return state;
+    if (state.status === "foundAWinner") return state;
+
+    const stateCopy = cloneDeep(state);
+    stateCopy.board[x][y] = players[state.currentPlayerIndex].symbol;
     return {
       ...state,
-      board: state.board,
+      board: stateCopy.board,
     };
+  },
+  UpdateGameSize: (state: GameState, data: { value: number }) => {
+    return {
+      ...state,
+      numSquares: data.value,
+      board: createSquares(data.value),
+    } as GameState;
   },
 };
 
@@ -65,5 +83,4 @@ export function determineNextPlayer(
 ) {
   if (currentPlayerIndex + 1 === players.length) return 0;
   return currentPlayerIndex + 1;
-
 }

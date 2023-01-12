@@ -3,13 +3,17 @@ import { render, screen } from "@testing-library/react";
 import App, { players } from "./App";
 import * as fc from "fast-check";
 import TicTacToe, { createSquares } from "./TicTacToe";
-import { initialGameState, reducer, determineNextPlayer } from "./App";
+import {
+  reducer,
+  determineNextPlayer,
+  getInitialGameState,
+} from "./App";
 import userEvent from "@testing-library/user-event";
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
-  const { container } = render(<App />);
-  const squares = container.querySelectorAll("tbody button");
+  render(<App />);
+  const squares = screen.getAllByTestId("square");
 
   squares.forEach((each) => {
     expect(each.textContent).toEqual("");
@@ -49,6 +53,7 @@ test(`createSquares fn - creates the correct dimension of squares`, () => {
 test(`given that the game state contains player symbols
 when the reset action is triggered
 then the squares should all become empty`, () => {
+  const initialGameState = getInitialGameState();
   const gameState = {
     ...initialGameState,
     board: [["x", "x", "o"], ...createSquares(initialGameState.numSquares - 1)],
@@ -62,6 +67,7 @@ then the squares should all become empty`, () => {
 test(`given that the game is rendered
 when the reset button is clicked
 then the reset action should be dispatched`, () => {
+  const initialGameState = getInitialGameState();
   const dispatch = jest.fn();
   render(<TicTacToe dispatch={dispatch} gameState={initialGameState} />);
 
@@ -89,18 +95,75 @@ test(`determineNextPlayer -- correctly determines the next player index based on
   ).toEqual(2);
 });
 
+test(`given that the current player is player x
+when player x triggers the MarkSquare action
+then player x's symbol should show in the square`, () => {
+  players.forEach((_, i) => {
+    const gameState = {
+      ...getInitialGameState(),
+      currentPlayerIndex: i,
+    };
 
-test.todo(`given that the current player is player x
-when player x clicks on an empty square
-then player x's symbol should show in the square`);
+    const updatedGameState = reducer(gameState, {
+      type: "MarkSquare",
+      data: { coords: [0, 0], players },
+    });
+    expect(updatedGameState.board[0][0]).toEqual(
+      players[gameState.currentPlayerIndex].symbol
+    );
+  });
+});
 
-test.todo(`given that the current player is player x
+test(`given that the game is rendered
+when a square is clicked on
+then the dispatch function should be called with the MarkSquare action`, () => {
+  const dispatch = jest.fn();
+  const initialGameState = getInitialGameState();
+
+  render(<TicTacToe gameState={initialGameState} dispatch={dispatch} />);
+  const gameSquares = screen.getAllByTestId("square");
+  userEvent.click(gameSquares[0]);
+
+  expect(dispatch).toHaveBeenCalledWith({
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+});
+
+test(`given that the current player is player x
 when player x clicks on a square that already has a symbol
-then an error should show, saying you can't click that square`);
+then the value of the cell should not change`, () => {
+  const initialGameState = getInitialGameState();
+  initialGameState.board[0][0] = players[0].symbol;
+  initialGameState.currentPlayerIndex = players.length - 1;
 
-test.todo(`given that the game state has some symbols
+  const finalGameState = reducer(initialGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+
+  expect(finalGameState.board[0][0]).toEqual(initialGameState.board[0][0]);
+});
+
+test(`given that the game state has some symbols
 when the number of squares is changed
-then the game state should be reset, and the squares should be empty`);
+then the game state should be reset, and the squares should be empty`, () => {
+  const initialGameState = getInitialGameState();
+
+  [3, 4, 5, 6].forEach((size) => {
+    const finalGameState = reducer(initialGameState, {
+      type: "UpdateGameSize",
+      data: { value: size },
+    });
+
+    console.log("final game state -> ", finalGameState);
+
+    render(<TicTacToe dispatch={jest.fn()} gameState={finalGameState} />);
+
+    expect(screen.getAllByTestId("square").length).toEqual(size * size);
+    expect(finalGameState.numSquares).toEqual(size);
+  });
+});
 
 test.todo(`given that the game is in progress
 when the current player is player x
