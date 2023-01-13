@@ -1,5 +1,6 @@
 import { GameState, Action } from "./types";
 import { players } from "./App";
+import deepFreeze from "deep-freeze";
 
 const sizes = [3, 4, 5, 6];
 
@@ -69,7 +70,9 @@ export default TicTacToe;
 
 export function createSquares(dimension: number) {
   const dim = Math.abs(dimension);
-  const twoDArray = new Array(dim).fill(Array(dim).fill(""));
+  const twoDArray = new Array(dim)
+    .fill("")
+    .map(() => new Array(dim).fill(""));
 
   return twoDArray;
 }

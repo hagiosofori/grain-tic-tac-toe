@@ -7,6 +7,7 @@ import App, {
   reducer,
   determineNextPlayer,
   getInitialGameState,
+  updateBoard,
 } from "./App";
 import userEvent from "@testing-library/user-event";
 import { ActionTypes } from "./types";
@@ -134,14 +135,23 @@ then the dispatch function should be called with the MarkSquare action`, () => {
 test(`given that the current player is player x
 when player x clicks on a square that already has a symbol
 then the value of the cell should not change`, () => {
-  const initialGameState = getInitialGameState();
-  initialGameState.board[0][0] = players[0].symbol;
-  initialGameState.currentPlayerIndex = players.length - 1;
+  const initialGameState = {
+    ...getInitialGameState(),
+    board: updateBoard(getInitialGameState().board, 0, 0, players[0].symbol),
+    currentPlayerIndex: players.length - 1,
+  };
 
-  const finalGameState = reducer(initialGameState, {
-    type: "MarkSquare",
-    data: { coords: [0, 0], players },
-  });
+  const finalGameState = reducer(
+    {
+      ...initialGameState,
+      board: updateBoard(initialGameState.board, 0, 0, players[0].symbol),
+      currentPlayerIndex: players.length - 1,
+    },
+    {
+      type: "MarkSquare",
+      data: { coords: [0, 0], players },
+    }
+  );
 
   expect(finalGameState.board[0][0]).toEqual(initialGameState.board[0][0]);
 });
@@ -150,9 +160,14 @@ test(`given that the game state has some symbols
 when the number of squares is changed
 then the game state should be reset, and the squares should be empty`, () => {
   const initialGameState = getInitialGameState();
-  initialGameState.board[0][0] = players[0].symbol;
   const { rerender } = render(
-    <TicTacToe dispatch={jest.fn()} gameState={initialGameState} />
+    <TicTacToe
+      dispatch={jest.fn()}
+      gameState={{
+        ...initialGameState,
+        board: updateBoard(initialGameState.board, 0, 0, players[0].symbol),
+      }}
+    />
   );
 
   [3, 4, 5, 6].forEach((size) => {
@@ -204,21 +219,34 @@ then only the square where the play was made should have a value`, () => {
   expect(updatedGameState.board[0][0]).toEqual(players[0].symbol);
 
   for (let i = 0; i < updatedGameState.board.length; i++) {
-    for (let j = 0; j < updatedGameState.board[i].length; i++) {
+    for (let j = 0; j < updatedGameState.board[i].length; j++) {
       if (i === 0 && j === 0) continue;
-      console.log("i,j", { i, j });
       expect(updatedGameState.board[i][j]).toEqual("");
     }
   }
 });
 
-test.todo(`given that the game is in progress
+test(`given that the game is in progress
 when the current player plays
-the currentPlayerIndex should shift to the next player`);
+the currentPlayerIndex should shift to the next player`, () => {
+  const gameState = {
+    ...getInitialGameState(),
+    currentPlayerIndex: 0,
+  };
 
-test.todo(`given that the game is rendered
+  const finalGameState = reducer(gameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+
+  expect(finalGameState.currentPlayerIndex).toEqual(1);
+});
+
+test(`given that the game is rendered
 when the number of squares has been set to x by x
-then the number of squares on the screen should be x by x`);
+then the number of squares on the screen should be x by x`, () => {
+  render(<TicTacToe gameState={getInitialGameState()} dispatch={jest.fn()} />);
+});
 
 test.todo(`given that the game is in progress
 when the game state contains a winning pattern for player x,

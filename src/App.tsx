@@ -1,8 +1,8 @@
+import deepFreeze from "deep-freeze";
 import { useReducer } from "react";
 import "./App.css";
 import TicTacToe, { createSquares } from "./TicTacToe";
 import { GameState, Action, ActionTypes, Player } from "./types";
-import cloneDeep from "lodash.clonedeep";
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialGameState);
@@ -19,16 +19,16 @@ export const players: Player[] = [
 
 const DEFAULT_NUM_SQUARES = 3;
 
-export const initialGameState: GameState = {
+export const initialGameState: GameState = deepFreeze({
   board: createSquares(DEFAULT_NUM_SQUARES),
   numSquares: DEFAULT_NUM_SQUARES,
   currentPlayerIndex: 0,
   status: "inProgress",
   errorMsg: "",
-};
+}) as GameState;
 
 export function getInitialGameState(): GameState {
-  return { ...initialGameState, board: [...initialGameState.board] };
+  return initialGameState;
 }
 
 const reducerConfig: Record<
@@ -46,13 +46,16 @@ const reducerConfig: Record<
     if (state.board[x][y]) return state;
     if (state.status === "foundAWinner") return state;
 
-    const stateCopy = cloneDeep(state);
-    const row = stateCopy.board[x];
-    console.log("row ->", row);
-    row[y] = players[state.currentPlayerIndex].symbol;
+    const board = updateBoard(
+      state.board,
+      x,
+      y,
+      players[state.currentPlayerIndex].symbol
+    );
 
     return {
-      ...stateCopy,
+      ...state,
+      board,
       currentPlayerIndex: determineNextPlayer(
         state.currentPlayerIndex,
         players
@@ -81,6 +84,20 @@ export function determineNextPlayer(
   currentPlayerIndex: number,
   players: Player[]
 ) {
-  if (currentPlayerIndex + 1 === players.length) return 0;
+  if (currentPlayerIndex + 1 >= players.length) return 0;
   return currentPlayerIndex + 1;
+}
+
+export function updateBoard(
+  board: GameState["board"],
+  x: number,
+  y: number,
+  symbol: string
+) {
+  return board.map((row, i) =>
+    row.map((cell, j) => {
+      if (i === x && j === y) return symbol;
+      return cell;
+    })
+  );
 }
