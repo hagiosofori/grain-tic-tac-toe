@@ -72,6 +72,7 @@ const reducerConfig: Record<
       ),
       winningPlayerIndex: isWinnerFound ? state.currentPlayerIndex : null,
       status: isWinnerFound ? "foundAWinner" : isDraw ? "draw" : state.status,
+      numMoves: state.numMoves + 1,
     };
   },
 

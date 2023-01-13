@@ -396,19 +396,17 @@ then the dispatch function should be called with the MarkSquare action`, () => {
 
 test(`given that the current player is player x
 when player x clicks on a square that already has a symbol
-then the value of the cell should not change`, () => {
+then the value of the cell should not change
+  and the number of moves should not increase`, () => {
   const initialGameState = {
     ...getInitialGameState(),
     board: updateBoard(getInitialGameState().board, 0, 0, players[0].symbol),
     currentPlayerIndex: players.length - 1,
+    numMoves: 1,
   };
 
   const finalGameState = reducer(
-    {
-      ...initialGameState,
-      board: updateBoard(initialGameState.board, 0, 0, players[0].symbol),
-      currentPlayerIndex: players.length - 1,
-    },
+    initialGameState,
     {
       type: "MarkSquare",
       data: { coords: [0, 0], players },
@@ -416,9 +414,10 @@ then the value of the cell should not change`, () => {
   );
 
   expect(finalGameState.board[0][0]).toEqual(initialGameState.board[0][0]);
+  expect(finalGameState.numMoves).toEqual(initialGameState.numMoves)
 });
 
-test(`given that the game state has some symbols
+test(`given that the game state has some plays
 when the number of squares is changed
 then the game state should be reset, and the squares should be empty`, () => {
   const initialGameState = getInitialGameState();
@@ -622,9 +621,21 @@ then the clicked square should not change`, () => {
   });
 });
 
-test.todo(`given that the game is in progress
+test(`given that the game is in progress
 when a player makes a move
-then the numMoves state value should increase by 1`);
+then the numMoves state value should increase by 1`, () => {
+  const gameState = {
+    ...getInitialGameState(),
+    numMoves: 0,
+  };
+
+  const finalGameState = reducer(gameState, {
+    type: "MarkSquare",
+    data: { coords: [0,0], players },
+  });
+
+  expect(finalGameState.numMoves).toEqual(1);
+});
 
 test.todo(`given that a winner has been found
 then the winner should be displayed on the screen`);
