@@ -526,8 +526,11 @@ describe("findWinner fn", () => {
     given that the game is in progress
     when the game state contains a winning pattern for player x,
     then the game should show player x as the winner`, () => {
-      expect(findWinner(pattern.board, pattern.symbol)).toEqual(pattern.result);
+      const { isFoundWinner } = findWinner(pattern.board, pattern.symbol);
+      expect(isFoundWinner).toEqual(pattern.result);
     });
+
+    test.todo(`${pattern.name} confirm that the winning squares are correct`);
   });
 });
 
@@ -651,5 +654,27 @@ then the winner should be displayed on the screen`, () => {
   ).toBeInTheDocument();
 });
 
-test.todo(`given that a winner has been found
-then the winning squares should be in winningSquares state`);
+test(`given that a winner has been found
+then the winning squares should be in winningSquares state`, () => {
+  const almostWonGameState: GameState = {
+    ...getInitialGameState(),
+    winningSquares: null,
+    board: [
+      ["", "", ""],
+      ["", "x", ""],
+      ["", "", "x"],
+    ],
+    currentPlayerIndex: 0,
+  };
+
+  const finalGameState = reducer(almostWonGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+
+  expect(finalGameState.winningSquares).toEqual([
+    [0, 0],
+    [1, 1],
+    [2, 2],
+  ]);
+});

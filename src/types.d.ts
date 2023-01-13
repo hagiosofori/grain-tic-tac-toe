@@ -6,6 +6,12 @@ export interface GameState {
   errorMsg: string;
   numMoves: number;
   winningPlayerIndex: number | null;
+  winningSquares: [[number, number], [number, number], [number, number]] | null;
+}
+
+interface FoundWinner {
+  isFoundWinner: boolean;
+  winningSquares: GameState["winningSquares"];
 }
 
 interface Player {
