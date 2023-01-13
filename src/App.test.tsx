@@ -405,16 +405,13 @@ then the value of the cell should not change
     numMoves: 1,
   };
 
-  const finalGameState = reducer(
-    initialGameState,
-    {
-      type: "MarkSquare",
-      data: { coords: [0, 0], players },
-    }
-  );
+  const finalGameState = reducer(initialGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
 
   expect(finalGameState.board[0][0]).toEqual(initialGameState.board[0][0]);
-  expect(finalGameState.numMoves).toEqual(initialGameState.numMoves)
+  expect(finalGameState.numMoves).toEqual(initialGameState.numMoves);
 });
 
 test(`given that the game state has some plays
@@ -631,11 +628,28 @@ then the numMoves state value should increase by 1`, () => {
 
   const finalGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0,0], players },
+    data: { coords: [0, 0], players },
   });
 
   expect(finalGameState.numMoves).toEqual(1);
 });
 
+test(`given that a winner has been found
+then the winner should be displayed on the screen`, () => {
+  const gameState: GameState = {
+    ...getInitialGameState(),
+    numMoves: 9,
+    winningPlayerIndex: 0,
+    status: "foundAWinner",
+  };
+
+  render(<TicTacToe gameState={gameState} dispatch={jest.fn()} />);
+  expect(
+    screen.getByRole("heading", {
+      name: `Winner: ${players[gameState.winningPlayerIndex!].name}!`,
+    })
+  ).toBeInTheDocument();
+});
+
 test.todo(`given that a winner has been found
-then the winner should be displayed on the screen`);
+then the winning squares should be in winningSquares state`);

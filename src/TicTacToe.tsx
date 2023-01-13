@@ -11,7 +11,7 @@ function TicTacToe({
   gameState: GameState;
   dispatch: React.Dispatch<Action>;
 }) {
-  const { board,} = gameState;
+  const { board } = gameState;
 
   return (
     <div>
@@ -39,6 +39,10 @@ function TicTacToe({
         ))}
       </div>
       {gameState.status === "draw" ? <h3>Draw!</h3> : null}
+      {gameState.status === "foundAWinner" &&
+      gameState.winningPlayerIndex !== null ? (
+        <h3>{`Winner: ${players[gameState.winningPlayerIndex].name}!`}</h3>
+      ) : null}
       <table>
         <tbody>
           {board.map((row, rowIndex) => (
