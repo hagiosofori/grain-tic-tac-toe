@@ -25,6 +25,7 @@ export const initialGameState: GameState = deepFreeze({
   currentPlayerIndex: 0,
   status: "inProgress",
   errorMsg: "",
+  numMoves: 0,
 }) as GameState;
 
 export function getInitialGameState(): GameState {
@@ -53,6 +54,15 @@ const reducerConfig: Record<
       players[state.currentPlayerIndex].symbol
     );
 
+    const isWinnerFound = findWinner(
+      state.board,
+      players[state.currentPlayerIndex].symbol
+    );
+
+    const isDraw =
+      state.numMoves + 1 === state.numSquares * state.numSquares &&
+      !isWinnerFound;
+
     return {
       ...state,
       board,
@@ -60,6 +70,8 @@ const reducerConfig: Record<
         state.currentPlayerIndex,
         players
       ),
+      winningPlayerIndex: isWinnerFound ? state.currentPlayerIndex : null,
+      status: isWinnerFound ? "foundAWinner" : isDraw ? "draw" : state.status,
     };
   },
 
@@ -100,4 +112,80 @@ export function updateBoard(
       return cell;
     })
   );
+}
+
+export function findWinner(board: GameState["board"], symbol: string) {
+  const horiz = findWinnerInHorizontal(board, symbol);
+  const vert = findWinnerInVertical(board, symbol);
+  const diagLD = findWinnerInDiagonalLeftDown(board, symbol);
+  const diagRD = findWinnerInDiagonalRightDown(board, symbol);
+
+  // console.table({ horiz, vert, diagLD, diagRD });
+
+  return horiz || vert || diagLD || diagRD;
+}
+
+function findWinnerInHorizontal(board: GameState["board"], symbol: string) {
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length - 2; col++) {
+      const pos1 = board[row][col];
+      const pos2 = board[row][col + 1];
+      const pos3 = board[row][col + 2];
+
+      if (pos1 === symbol && pos2 === symbol && pos3 === symbol) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function findWinnerInVertical(board: GameState["board"], symbol: string) {
+  for (let row = 0; row < board.length - 2; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      const pos1 = board[row][col];
+      const pos2 = board[row + 1][col];
+      const pos3 = board[row + 2][col];
+      if (pos1 === symbol && pos2 === symbol && pos3 === symbol) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function findWinnerInDiagonalRightDown(
+  board: GameState["board"],
+  symbol: string
+) {
+  for (let row = 0; row < board.length - 2; row++) {
+    for (let col = 0; col < board[row].length - 2; col++) {
+      const pos1 = board[row][col];
+      const pos2 = board[row + 1][col + 1];
+      const pos3 = board[row + 2][col + 2];
+
+      if (pos1 === symbol && pos2 === symbol && pos3 === symbol) return true;
+    }
+  }
+
+  return false;
+}
+
+function findWinnerInDiagonalLeftDown(
+  board: GameState["board"],
+  symbol: string
+) {
+  for (let row = 0; row < board.length - 2; row++) {
+    for (let col = board[row].length - 1; col > 1; col--) {
+      const pos1 = board[row][col];
+      const pos2 = board[row + 1][col - 1];
+      const pos3 = board[row + 2][col - 2];
+
+      if (pos1 === symbol && pos2 === symbol && pos3 === symbol) return true;
+    }
+  }
+
+  return false;
 }

@@ -2,8 +2,10 @@ export interface GameState {
   board: Array<Array<Player1["symbol"] | Player2["symbol"] | "">>;
   numSquares: 3 | 4 | 5 | 6;
   currentPlayerIndex: number;
-  status: "inProgress" | "foundAWinner";
+  status: "inProgress" | "foundAWinner" | "draw";
   errorMsg: string;
+  numMoves: number;
+  winningPlayerIndex: number | null;
 }
 
 interface Player {
@@ -16,10 +18,7 @@ export interface Action {
   data?: any;
 }
 
-export type ActionTypes =
-  | "Reset"
-  | "MarkSquare"
-  | "UpdateGameSize";
+export type ActionTypes = "Reset" | "MarkSquare" | "UpdateGameSize";
 
 interface UpdateNumSquaresData {
   numSquares: GameState["numSquares"];

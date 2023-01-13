@@ -11,7 +11,7 @@ function TicTacToe({
   gameState: GameState;
   dispatch: React.Dispatch<Action>;
 }) {
-  const { board } = gameState;
+  const { board,} = gameState;
 
   return (
     <div>
@@ -38,6 +38,7 @@ function TicTacToe({
           </label>
         ))}
       </div>
+      {gameState.status === "draw" ? <h3>Draw!</h3> : null}
       <table>
         <tbody>
           {board.map((row, rowIndex) => (
@@ -70,9 +71,7 @@ export default TicTacToe;
 
 export function createSquares(dimension: number) {
   const dim = Math.abs(dimension);
-  const twoDArray = new Array(dim)
-    .fill("")
-    .map(() => new Array(dim).fill(""));
+  const twoDArray = new Array(dim).fill("").map(() => new Array(dim).fill(""));
 
   return twoDArray;
 }

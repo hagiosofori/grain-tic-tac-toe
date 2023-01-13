@@ -10,9 +10,269 @@ import App, {
   updateBoard,
 } from "./App";
 import userEvent from "@testing-library/user-event";
-import { ActionTypes, GameState } from "./types";
+import { ActionTypes, GameState, Player } from "./types";
+import { findWinner } from "./App";
 
 const BOARD_SIZE_OPTIONS = [3, 4, 5, 6];
+
+const winningPatterns = [
+  {
+    name: "6x6 horizontal winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", "", ""],
+      ["x", "", "x", "", "", ""],
+      ["o", "", "o", "x", "x", ""],
+      ["x", "o", "x", "o", "o", "o"],
+      ["", "o", "", "x", "", ""],
+      ["", "", "o", "x", "o", ""],
+    ],
+    symbol: "o",
+  },
+  {
+    name: "5x5 horizontal winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", ""],
+      ["o", "", "o", "x", "x"],
+      ["x", "o", "x", "", ""],
+      ["", "o", "", "x", ""],
+      ["", "", "o", "o", "o"],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "4x4 horizontal winner",
+    result: true,
+    board: [
+      ["o", "", "o", ""],
+      ["", "x", "x", "x"],
+      ["", "o", "", "x"],
+      ["", "o", "", ""],
+    ],
+
+    symbol: "x",
+  },
+  {
+    name: "3x3 horizontal winner",
+    result: true,
+    board: [
+      ["x", "", "x"],
+      ["", "x", ""],
+      ["o", "o", "o"],
+    ],
+
+    symbol: "o",
+  },
+
+  // false
+  {
+    name: "6x6 horizontal no winner",
+    result: false,
+    board: [
+      ["x", "", "x", "", "", ""],
+      ["x", "", "x", "", "", ""],
+      ["o", "", "o", "x", "x", ""],
+      ["x", "o", "x", "o", "", "o"],
+      ["", "o", "", "x", "", ""],
+      ["", "", "o", "x", "o", ""],
+    ],
+    symbol: "o",
+  },
+  {
+    name: "5x5 horizontal no winner",
+    result: false,
+    board: [
+      ["x", "", "x", "", ""],
+      ["o", "", "o", "x", "x"],
+      ["x", "o", "x", "", ""],
+      ["", "o", "", "x", ""],
+      ["", "", "o", "", "o"],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "4x4 horizontal no winner",
+    result: false,
+    board: [
+      ["o", "", "o", ""],
+      ["", "x", "", "x"],
+      ["", "o", "", "x"],
+      ["", "o", "", ""],
+    ],
+
+    symbol: "x",
+  },
+  {
+    name: "3x3 horizontal no winner",
+    result: false,
+    board: [
+      ["x", "", "x"],
+      ["", "x", ""],
+      ["o", "", "o"],
+    ],
+
+    symbol: "o",
+  },
+
+  //vertical true
+  {
+    name: "3x3 vertical winner",
+    result: true,
+    board: [
+      ["x", "", "o"],
+      ["", "x", "o"],
+      ["o", "x", "o"],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "4x4 vertical winner",
+    result: true,
+    board: [
+      ["x", "", "x", ""],
+      ["o", "x", "", ""],
+      ["o", "x", "o", ""],
+      ["o", "o", "x", ""],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "5x5 vertical winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", ""],
+      ["", "x", "", "", ""],
+      ["", "o", "o", "", ""],
+      ["x", "x", "o", "", ""],
+      ["o", "o", "o", "", ""],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "6x6 vertical winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", "", ""],
+      ["", "x", "", "", "", ""],
+      ["o", "o", "o", "", "", ""],
+      ["x", "x", "o", "", "o", ""],
+      ["o", "x", "o", "", "", ""],
+      ["o", "o", "", "", "", ""],
+    ],
+
+    symbol: "o",
+  },
+
+  // diagonal right down true
+  {
+    name: "3x3 diag right down winner",
+    result: true,
+    board: [
+      ["x", "", "o"],
+      ["", "x", "x"],
+      ["o", "o", "x"],
+    ],
+
+    symbol: "x",
+  },
+  {
+    name: "4x4 diag right down winner",
+    result: true,
+    board: [
+      ["o", "", "o", ""],
+      ["o", "x", "", ""],
+      ["x", "", "x", ""],
+      ["x", "o", "x", "x"],
+    ],
+
+    symbol: "x",
+  },
+  {
+    name: "5x5 diag right down winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", ""],
+      ["", "o", "o", "", ""],
+      ["", "o", "x", "o", ""],
+      ["x", "x", "", "", "o"],
+      ["o", "o", "x", "", ""],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "6x6 diag right down winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", "", ""],
+      ["", "x", "", "o", "", ""],
+      ["o", "", "o", "", "o", ""],
+      ["x", "x", "", "", "o", "o"],
+      ["o", "x", "o", "", "", ""],
+      ["o", "o", "", "", "", ""],
+    ],
+
+    symbol: "o",
+  },
+
+  // diagonal left down
+  {
+    name: "3x3 diag left down winner",
+    result: true,
+    board: [
+      ["", "", "x"],
+      ["", "x", "o"],
+      ["x", "o", "x"],
+    ],
+
+    symbol: "x",
+  },
+  {
+    name: "4x4 diag left down winner",
+    result: true,
+    board: [
+      ["o", "", "o", ""],
+      ["o", "x", "o", ""],
+      ["x", "o", "", ""],
+      ["o", "o", "x", "x"],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "5x5 diag left down winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", ""],
+      ["", "o", "", "", ""],
+      ["", "o", "x", "o", ""],
+      ["x", "x", "o", "", "o"],
+      ["o", "o", "x", "", ""],
+    ],
+
+    symbol: "o",
+  },
+  {
+    name: "6x6 diag left down winner",
+    result: true,
+    board: [
+      ["x", "", "x", "", "o", ""],
+      ["", "x", "", "o", "", ""],
+      ["o", "", "o", "", "x", ""],
+      ["x", "x", "", "", "o", "x"],
+      ["o", "x", "o", "", "", ""],
+      ["o", "o", "", "", "", ""],
+    ],
+
+    symbol: "o",
+  },
+];
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
@@ -264,10 +524,107 @@ then the number of squares on the screen should be x by x`, () => {
   });
 });
 
-test.todo(`given that the game is in progress
-when the game state contains a winning pattern for player x,
-then the game should show player x as the winner`);
+describe("findWinner fn", () => {
+  winningPatterns.forEach((pattern) => {
+    test(`${pattern.name} 
+    given that the game is in progress
+    when the game state contains a winning pattern for player x,
+    then the game should show player x as the winner`, () => {
+      expect(findWinner(pattern.board, pattern.symbol)).toEqual(pattern.result);
+    });
+  });
+});
 
-test.todo(`given that the game is over
+test(`given that the game is in progress
+when a player fills the final square
+  and there is no winner
+then the game status should be draw`, () => {
+  const oneSpaceLeft = [
+    ["", "x", "o"],
+    ["o", "o", "x"],
+    ["x", "o", "o"],
+  ];
+
+  const initialGameState: GameState = {
+    ...getInitialGameState(),
+    board: oneSpaceLeft,
+    numSquares: 3,
+    numMoves: 8,
+    currentPlayerIndex: 0,
+  };
+
+  const finalGameState = reducer(initialGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players },
+  });
+
+  expect(finalGameState.status).toBe("draw");
+});
+
+test(`given that the game is a draw
+then the 'Draw!' result should show on the screen`, () => {
+  const gameState = {
+    ...getInitialGameState(),
+    numSquares: 3,
+    board: [
+      ["x", "o", "x"],
+      ["x", "o", "o"],
+      ["o", "x", "x"],
+    ],
+    numMoves: 9,
+    currentPlayerIndex: 0,
+    status: "draw",
+  } as GameState;
+
+  render(<TicTacToe dispatch={jest.fn()} gameState={gameState} />);
+
+  expect(screen.getByRole("heading", { name: "Draw!" })).toBeInTheDocument();
+});
+
+test(`given that the game is over (draw | foundAWinner)
 when either of the players clicks on a square
-then the clicked square should not change`);
+then the clicked square should not change`, () => {
+  const board = [
+    ["o", "x", "x"],
+    ["x", "o", "o"],
+    ["o", "o", "x"],
+  ];
+  const players: Player[] = [
+    { name: "Player 1", symbol: "a" },
+    { name: "Player 2", symbol: "b" },
+  ];
+
+  const gameStates: GameState[] = [
+    {
+      ...getInitialGameState(),
+      status: "draw",
+      board,
+      currentPlayerIndex: 0,
+    },
+    {
+      ...getInitialGameState(),
+      status: "foundAWinner",
+      board,
+      currentPlayerIndex: 0,
+    },
+  ];
+
+  gameStates.forEach((gameState) => {
+    const finalGameState = reducer(gameState, {
+      type: "MarkSquare",
+      data: { coords: [0, 0], players },
+    });
+
+    expect(finalGameState.board[0][0]).not.toEqual(
+      players[gameState.currentPlayerIndex].symbol
+    );
+    expect(finalGameState.board[0][0]).toEqual(gameState.board[0][0]);
+  });
+});
+
+test.todo(`given that the game is in progress
+when a player makes a move
+then the numMoves state value should increase by 1`);
+
+test.todo(`given that a winner has been found
+then the winner should be displayed on the screen`);
