@@ -10,7 +10,9 @@ import App, {
   updateBoard,
 } from "./App";
 import userEvent from "@testing-library/user-event";
-import { ActionTypes } from "./types";
+import { ActionTypes, GameState } from "./types";
+
+const BOARD_SIZE_OPTIONS = [3, 4, 5, 6];
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
@@ -38,7 +40,7 @@ then the squares should all be empty`, async () => {
 //   ));
 
 test(`createSquares fn - creates the correct dimension of squares`, () => {
-  const inputs = [3, 4, 5, 6];
+  const inputs = BOARD_SIZE_OPTIONS;
   inputs.forEach((each) => {
     const result = createSquares(each);
 
@@ -170,7 +172,7 @@ then the game state should be reset, and the squares should be empty`, () => {
     />
   );
 
-  [3, 4, 5, 6].forEach((size) => {
+  BOARD_SIZE_OPTIONS.forEach((size) => {
     const finalGameState = reducer(initialGameState, {
       type: "UpdateGameSize",
       data: { value: size },
@@ -245,7 +247,21 @@ the currentPlayerIndex should shift to the next player`, () => {
 test(`given that the game is rendered
 when the number of squares has been set to x by x
 then the number of squares on the screen should be x by x`, () => {
-  render(<TicTacToe gameState={getInitialGameState()} dispatch={jest.fn()} />);
+  const { rerender } = render(
+    <TicTacToe gameState={getInitialGameState()} dispatch={jest.fn()} />
+  );
+
+  BOARD_SIZE_OPTIONS.forEach((num) => {
+    const gameState = {
+      ...getInitialGameState(),
+      numSquares: num,
+      board: createSquares(num),
+    } as GameState;
+
+    rerender(<TicTacToe gameState={gameState} dispatch={jest.fn()} />);
+    const squares = screen.getAllByTestId("square");
+    expect(squares.length).toEqual(num * num);
+  });
 });
 
 test.todo(`given that the game is in progress
