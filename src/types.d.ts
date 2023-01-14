@@ -26,6 +26,21 @@ export interface Action {
 
 export type ActionTypes = "Reset" | "MarkSquare" | "UpdateGameSize";
 
+export interface MarkSquareData {
+  coords: [number, number];
+  players: Player[];
+  storage: Storage;
+}
+
+export interface UpdateGameSizeData {
+  value: GameState["numSquares"];
+}
+
 interface UpdateNumSquaresData {
   numSquares: GameState["numSquares"];
+}
+
+export interface Storage {
+  readFromLocalStorage: () => GameState;
+  updateLocalStorage: (gameState: GameState) => void;
 }

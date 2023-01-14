@@ -1,8 +1,7 @@
 import { GameState, Action } from "./types";
-import { players } from "./App";
 import styled from "styled-components";
-
-const sizes = [3, 4, 5, 6];
+import { BOARD_SIZE_OPTIONS, players } from "./constants";
+import { isWinningSquare, storage } from "./helpers";
 
 function TicTacToe({
   gameState,
@@ -11,18 +10,19 @@ function TicTacToe({
   gameState: GameState;
   dispatch: React.Dispatch<Action>;
 }) {
-  const { board } = gameState;
+  const { board, numSquares, status, winningPlayerIndex, winningSquares } =
+    gameState;
 
   return (
     <Wrapper>
       <div>
-        <h4 style={{textAlign: 'center',}}>Change board size</h4>
-        {sizes.map((value) => (
+        <h4 style={{ textAlign: "center" }}>Change board size</h4>
+        {BOARD_SIZE_OPTIONS.map((value) => (
           <Label key={value}>
             <input
               data-testdata={value}
               type="radio"
-              checked={gameState.numSquares === value}
+              checked={numSquares === value}
               onClick={() => {
                 dispatch({ type: "UpdateGameSize", data: { value } });
               }}
@@ -39,13 +39,10 @@ function TicTacToe({
       >
         Reset
       </ResetButton>
-      {gameState.status === "draw" ? <h3>Draw!</h3> : null}
-      {gameState.status === "foundAWinner" &&
-      gameState.winningPlayerIndex !== null ? (
-        <h3>{`Winner: ${players[gameState.winningPlayerIndex].name}!`}</h3>
-      ) : (
-        <h3>{""}</h3>
-      )}
+      <RenderStatusText
+        status={status}
+        winningPlayerIndex={winningPlayerIndex}
+      />
       <Table>
         <tbody>
           {board.map((row, rowIndex) => (
@@ -55,14 +52,18 @@ function TicTacToe({
                   <Button
                     isWinningSquare={isWinningSquare(
                       [rowIndex, cellIndex],
-                      gameState.winningSquares
+                      winningSquares
                     )}
                     data-testid="square"
                     type="button"
                     onClick={() => {
                       dispatch({
                         type: "MarkSquare",
-                        data: { coords: [rowIndex, cellIndex], players },
+                        data: {
+                          coords: [rowIndex, cellIndex],
+                          players,
+                          storage,
+                        },
                       });
                     }}
                   >
@@ -80,22 +81,26 @@ function TicTacToe({
 
 export default TicTacToe;
 
-export function createSquares(dimension: number) {
-  const dim = Math.abs(dimension);
-  const twoDArray = new Array(dim).fill("").map(() => new Array(dim).fill(""));
-
-  return twoDArray;
-}
-
-export function isWinningSquare(
-  position: [number, number],
-  winningSquares: GameState["winningSquares"]
-) {
-  const [x, y] = position;
-  return (
-    winningSquares?.some((pair) => pair[0] === x && pair[1] === y) || false
-  );
-}
+const RenderStatusText = ({
+  status,
+  winningPlayerIndex,
+}: {
+  status: GameState["status"];
+  winningPlayerIndex: GameState["winningPlayerIndex"];
+}) => {
+  switch (status) {
+    case "draw": {
+      return <h3>Draw!</h3>;
+    }
+    case "foundAWinner": {
+      if (winningPlayerIndex === null) return <div />;
+      return <h3>{`Winner: ${players[winningPlayerIndex].name}!`}</h3>;
+    }
+    default: {
+      return <Space />;
+    }
+  }
+};
 
 const Wrapper = styled.div`
   padding: 10px;
@@ -105,6 +110,11 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+`;
+
+const Space = styled.div`
+  height: 60px;
+  width: 100%;
 `;
 
 const Table = styled.table`

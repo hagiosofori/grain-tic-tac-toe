@@ -1,345 +1,24 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import * as fc from "fast-check";
-import TicTacToe, { createSquares } from "./TicTacToe";
-import App, {
+import TicTacToe from "./TicTacToe";
+import App from "./App";
+import reducer from "./reducer";
+import {
   players,
-  reducer,
+  initialGameState,
+  winningPatterns,
+  BOARD_SIZE_OPTIONS,
+} from "./constants";
+import {
+  createSquares,
   determineNextPlayer,
-  getInitialGameState,
   updateBoard,
-} from "./App";
+  findWinner,
+  storage,
+} from "./helpers";
 import userEvent from "@testing-library/user-event";
-import { ActionTypes, GameState, Player } from "./types";
-import { findWinner } from "./App";
-
-const BOARD_SIZE_OPTIONS = [3, 4, 5, 6];
-
-const winningPatterns = [
-  {
-    name: "6x6 horizontal winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", "", ""],
-      ["x", "", "x", "", "", ""],
-      ["o", "", "o", "x", "x", ""],
-      ["x", "o", "x", "o", "o", "o"],
-      ["", "o", "", "x", "", ""],
-      ["", "", "o", "x", "o", ""],
-    ],
-    winningSquares: [
-      [3, 3],
-      [3, 4],
-      [3, 5],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "5x5 horizontal winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", ""],
-      ["o", "", "o", "x", "x"],
-      ["x", "o", "x", "", ""],
-      ["", "o", "", "x", ""],
-      ["", "", "o", "o", "o"],
-    ],
-    winningSquares: [
-      [4, 2],
-      [4, 3],
-      [4, 4],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "4x4 horizontal winner",
-    result: true,
-    board: [
-      ["o", "", "o", ""],
-      ["", "x", "x", "x"],
-      ["", "o", "", "x"],
-      ["", "o", "", ""],
-    ],
-    winningSquares: [
-      [1, 1],
-      [1, 2],
-      [1, 3],
-    ],
-    symbol: "x",
-  },
-  {
-    name: "3x3 horizontal winner",
-    result: true,
-    board: [
-      ["x", "", "x"],
-      ["", "x", ""],
-      ["o", "o", "o"],
-    ],
-    winningSquares: [
-      [2, 0],
-      [2, 1],
-      [2, 2],
-    ],
-    symbol: "o",
-  },
-
-  // false
-  {
-    name: "6x6 horizontal no winner",
-    result: false,
-    board: [
-      ["x", "", "x", "", "", ""],
-      ["x", "", "x", "", "", ""],
-      ["o", "", "o", "x", "x", ""],
-      ["x", "o", "x", "o", "", "o"],
-      ["", "o", "", "x", "", ""],
-      ["", "", "o", "x", "o", ""],
-    ],
-    winningSquares: null,
-    symbol: "o",
-  },
-  {
-    name: "5x5 horizontal no winner",
-    result: false,
-    board: [
-      ["x", "", "x", "", ""],
-      ["o", "", "o", "x", "x"],
-      ["x", "o", "x", "", ""],
-      ["", "o", "", "x", ""],
-      ["", "", "o", "", "o"],
-    ],
-    winningSquares: null,
-    symbol: "o",
-  },
-  {
-    name: "4x4 horizontal no winner",
-    result: false,
-    board: [
-      ["o", "", "o", ""],
-      ["", "x", "", "x"],
-      ["", "o", "", "x"],
-      ["", "o", "", ""],
-    ],
-    winningSquares: null,
-    symbol: "x",
-  },
-  {
-    name: "3x3 horizontal no winner",
-    result: false,
-    board: [
-      ["x", "", "x"],
-      ["", "x", ""],
-      ["o", "", "o"],
-    ],
-    winningSquares: null,
-    symbol: "o",
-  },
-
-  //vertical true
-  {
-    name: "3x3 vertical winner",
-    result: true,
-    board: [
-      ["x", "", "o"],
-      ["", "x", "o"],
-      ["o", "x", "o"],
-    ],
-    winningSquares: [
-      [0, 2],
-      [1, 2],
-      [2, 2],
-    ],
-
-    symbol: "o",
-  },
-  {
-    name: "4x4 vertical winner",
-    result: true,
-    board: [
-      ["x", "", "x", ""],
-      ["o", "x", "", ""],
-      ["o", "x", "o", ""],
-      ["o", "o", "x", ""],
-    ],
-    winningSquares: [
-      [1, 0],
-      [2, 0],
-      [3, 0],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "5x5 vertical winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", ""],
-      ["", "x", "", "", ""],
-      ["", "o", "o", "", ""],
-      ["x", "x", "o", "", ""],
-      ["x", "o", "o", "", ""],
-    ],
-    winningSquares: [
-      [2, 2],
-      [3, 2],
-      [4, 2],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "6x6 vertical winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", "", ""],
-      ["", "x", "", "", "", ""],
-      ["o", "", "o", "", "", ""],
-      ["x", "x", "o", "", "o", ""],
-      ["o", "x", "o", "", "", ""],
-      ["o", "o", "", "", "", ""],
-    ],
-    winningSquares: [
-      [2, 2],
-      [3, 2],
-      [4, 2],
-    ],
-    symbol: "o",
-  },
-
-  // diagonal right down true
-  {
-    name: "3x3 diag right down winner",
-    result: true,
-    board: [
-      ["x", "", "o"],
-      ["", "x", "x"],
-      ["o", "o", "x"],
-    ],
-    winningSquares: [
-      [0, 0],
-      [1, 1],
-      [2, 2],
-    ],
-    symbol: "x",
-  },
-  {
-    name: "4x4 diag right down winner",
-    result: true,
-    board: [
-      ["o", "", "o", ""],
-      ["o", "x", "", ""],
-      ["x", "", "x", ""],
-      ["x", "o", "x", "x"],
-    ],
-    winningSquares: [
-      [1, 1],
-      [2, 2],
-      [3, 3],
-    ],
-    symbol: "x",
-  },
-  {
-    name: "5x5 diag right down winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", ""],
-      ["", "o", "o", "", ""],
-      ["", "o", "x", "o", ""],
-      ["x", "x", "", "", "o"],
-      ["o", "o", "x", "", ""],
-    ],
-    winningSquares: [
-      [1, 2],
-      [2, 3],
-      [3, 4],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "6x6 diag right down winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", "", ""],
-      ["", "x", "", "o", "", ""],
-      ["o", "", "o", "", "o", ""],
-      ["x", "x", "", "", "o", "o"],
-      ["o", "x", "o", "", "", ""],
-      ["o", "o", "", "", "", ""],
-    ],
-    winningSquares: [
-      [1, 3],
-      [2, 4],
-      [3, 5],
-    ],
-    symbol: "o",
-  },
-
-  // diagonal left down
-  {
-    name: "3x3 diag left down winner",
-    result: true,
-    board: [
-      ["", "", "x"],
-      ["", "x", "o"],
-      ["x", "o", "x"],
-    ],
-    winningSquares: [
-      [0, 2],
-      [1, 1],
-      [2, 0],
-    ],
-    symbol: "x",
-  },
-  {
-    name: "4x4 diag left down winner",
-    result: true,
-    board: [
-      ["o", "", "o", ""],
-      ["o", "x", "o", ""],
-      ["x", "o", "", ""],
-      ["o", "o", "x", "x"],
-    ],
-    winningSquares: [
-      [1, 2],
-      [2, 1],
-      [3, 0],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "5x5 diag left down winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", ""],
-      ["", "o", "", "", ""],
-      ["", "o", "x", "o", ""],
-      ["x", "x", "o", "", "o"],
-      ["o", "o", "x", "", ""],
-    ],
-    winningSquares: [
-      [2, 3],
-      [3, 2],
-      [4, 1],
-    ],
-    symbol: "o",
-  },
-  {
-    name: "6x6 diag left down winner",
-    result: true,
-    board: [
-      ["x", "", "x", "", "o", ""],
-      ["", "x", "", "o", "", ""],
-      ["o", "", "o", "", "x", ""],
-      ["x", "x", "", "", "o", "x"],
-      ["o", "x", "o", "", "", ""],
-      ["o", "o", "", "", "", ""],
-    ],
-    winningSquares: [
-      [0, 4],
-      [1, 3],
-      [2, 2],
-    ],
-    symbol: "o",
-  },
-];
+import { ActionTypes, GameState, Player, Storage } from "./types";
+import determineInitialGameState from "./helpers/determineInitialGameState";
 
 test(`given that the game has started
 then the squares should all be empty`, async () => {
@@ -384,7 +63,6 @@ test(`createSquares fn - creates the correct dimension of squares`, () => {
 test(`given that the game state contains player symbols
 when the reset action is triggered
 then the squares should all become empty`, () => {
-  const initialGameState = getInitialGameState();
   const gameState = {
     ...initialGameState,
     board: updateBoard(initialGameState.board, 0, 0, "x"),
@@ -398,7 +76,6 @@ then the squares should all become empty`, () => {
 test(`given that the game is rendered
 when the reset button is clicked
 then the reset action should be dispatched`, () => {
-  const initialGameState = getInitialGameState();
   const dispatch = jest.fn();
   render(<TicTacToe dispatch={dispatch} gameState={initialGameState} />);
 
@@ -431,13 +108,18 @@ when player x triggers the MarkSquare action
 then player x's symbol should show in the square`, () => {
   players.forEach((_, i) => {
     const gameState = {
-      ...getInitialGameState(),
+      ...initialGameState,
       currentPlayerIndex: i,
+    };
+
+    const storage: Storage = {
+      readFromLocalStorage: jest.fn(),
+      updateLocalStorage: jest.fn(),
     };
 
     const updatedGameState = reducer(gameState, {
       type: "MarkSquare",
-      data: { coords: [0, 0], players },
+      data: { coords: [0, 0], players, storage },
     });
     expect(updatedGameState.board[0][0]).toEqual(
       players[gameState.currentPlayerIndex].symbol
@@ -449,7 +131,10 @@ test(`given that the game is rendered
 when a square is clicked on
 then the dispatch function should be called with the MarkSquare action`, () => {
   const dispatch = jest.fn();
-  const initialGameState = getInitialGameState();
+  const mockStorage = {
+    readFromLocalStorage: storage.readFromLocalStorage,
+    updateLocalStorage: storage.updateLocalStorage,
+  };
 
   render(<TicTacToe gameState={initialGameState} dispatch={dispatch} />);
   const gameSquares = screen.getAllByTestId("square");
@@ -457,7 +142,7 @@ then the dispatch function should be called with the MarkSquare action`, () => {
 
   expect(dispatch).toHaveBeenCalledWith({
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage: mockStorage },
   });
 });
 
@@ -465,26 +150,30 @@ test(`given that the current player is player x
 when player x clicks on a square that already has a symbol
 then the value of the cell should not change
   and the number of moves should not increase`, () => {
-  const initialGameState = {
-    ...getInitialGameState(),
-    board: updateBoard(getInitialGameState().board, 0, 0, players[0].symbol),
+  const gameState = {
+    ...initialGameState,
+    board: updateBoard(initialGameState.board, 0, 0, players[0].symbol),
     currentPlayerIndex: players.length - 1,
     numMoves: 1,
   };
 
-  const finalGameState = reducer(initialGameState, {
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
+  const finalGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
-  expect(finalGameState.board[0][0]).toEqual(initialGameState.board[0][0]);
-  expect(finalGameState.numMoves).toEqual(initialGameState.numMoves);
+  expect(finalGameState.board[0][0]).toEqual(gameState.board[0][0]);
+  expect(finalGameState.numMoves).toEqual(gameState.numMoves);
 });
 
 test(`given that the game state has some plays
 when the number of squares is changed
 then the game state should be reset, and the squares should be empty`, () => {
-  const initialGameState = getInitialGameState();
   const { rerender } = render(
     <TicTacToe
       dispatch={jest.fn()}
@@ -517,7 +206,7 @@ test(`given that the game is in progress,
 when the size control is clicked
 then the dispatch function should be called with {type: UpdateGameSize, data:{value: number}}`, () => {
   const dispatch = jest.fn();
-  render(<TicTacToe dispatch={dispatch} gameState={getInitialGameState()} />);
+  render(<TicTacToe dispatch={dispatch} gameState={initialGameState} />);
 
   const sizeControls = screen.getAllByRole("radio");
 
@@ -534,11 +223,15 @@ then the dispatch function should be called with {type: UpdateGameSize, data:{va
 test(`given that the no plays have been made yet
 when the first play is made
 then only the square where the play was made should have a value`, () => {
-  const initialGameState = { ...getInitialGameState(), currentPlayerIndex: 0 };
+  const gameState = { ...initialGameState, currentPlayerIndex: 0 };
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
 
-  const updatedGameState = reducer(initialGameState, {
+  const updatedGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
   expect(updatedGameState.board[0][0]).toEqual(players[0].symbol);
@@ -555,13 +248,18 @@ test(`given that the game is in progress
 when the current player plays
 the currentPlayerIndex should shift to the next player`, () => {
   const gameState = {
-    ...getInitialGameState(),
+    ...initialGameState,
     currentPlayerIndex: 0,
+  };
+
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
   };
 
   const finalGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
   expect(finalGameState.currentPlayerIndex).toEqual(1);
@@ -571,12 +269,12 @@ test(`given that the game is rendered
 when the number of squares has been set to x by x
 then the number of squares on the screen should be x by x`, () => {
   const { rerender } = render(
-    <TicTacToe gameState={getInitialGameState()} dispatch={jest.fn()} />
+    <TicTacToe gameState={initialGameState} dispatch={jest.fn()} />
   );
 
   BOARD_SIZE_OPTIONS.forEach((num) => {
     const gameState = {
-      ...getInitialGameState(),
+      ...initialGameState,
       numSquares: num,
       board: createSquares(num),
     } as GameState;
@@ -614,17 +312,22 @@ then the game status should be draw`, () => {
     ["x", "o", "o"],
   ];
 
-  const initialGameState: GameState = {
-    ...getInitialGameState(),
+  const gameState: GameState = {
+    ...initialGameState,
     board: oneSpaceLeft,
     numSquares: 3,
     numMoves: 8,
     currentPlayerIndex: 0,
   };
 
-  const finalGameState = reducer(initialGameState, {
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
+  const finalGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
   expect(finalGameState.status).toBe("draw");
@@ -633,7 +336,7 @@ then the game status should be draw`, () => {
 test(`given that the game is a draw
 then the 'Draw!' result should show on the screen`, () => {
   const gameState = {
-    ...getInitialGameState(),
+    ...initialGameState,
     numSquares: 3,
     board: [
       ["x", "o", "x"],
@@ -665,13 +368,13 @@ then the clicked square should not change`, () => {
 
   const gameStates: GameState[] = [
     {
-      ...getInitialGameState(),
+      ...initialGameState,
       status: "draw",
       board,
       currentPlayerIndex: 0,
     },
     {
-      ...getInitialGameState(),
+      ...initialGameState,
       status: "foundAWinner",
       board,
       currentPlayerIndex: 0,
@@ -695,13 +398,18 @@ test(`given that the game is in progress
 when a player makes a move
 then the numMoves state value should increase by 1`, () => {
   const gameState = {
-    ...getInitialGameState(),
+    ...initialGameState,
     numMoves: 0,
+  };
+
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
   };
 
   const finalGameState = reducer(gameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
   expect(finalGameState.numMoves).toEqual(1);
@@ -710,7 +418,7 @@ then the numMoves state value should increase by 1`, () => {
 test(`given that a winner has been found
 then the winner should be displayed on the screen`, () => {
   const gameState: GameState = {
-    ...getInitialGameState(),
+    ...initialGameState,
     numMoves: 9,
     winningPlayerIndex: 0,
     status: "foundAWinner",
@@ -727,7 +435,7 @@ then the winner should be displayed on the screen`, () => {
 test(`given that a winner has been found
 then the winning squares should be in winningSquares state`, () => {
   const almostWonGameState: GameState = {
-    ...getInitialGameState(),
+    ...initialGameState,
     winningSquares: null,
     board: [
       ["", "", ""],
@@ -737,9 +445,14 @@ then the winning squares should be in winningSquares state`, () => {
     currentPlayerIndex: 0,
   };
 
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
   const finalGameState = reducer(almostWonGameState, {
     type: "MarkSquare",
-    data: { coords: [0, 0], players },
+    data: { coords: [0, 0], players, storage },
   });
 
   expect(finalGameState.winningSquares).toEqual([
@@ -751,13 +464,69 @@ then the winning squares should be in winningSquares state`, () => {
 
 test(`given that the game is in progress
 when the reset action is triggered
-then the game board size should remain the same as before it was triggered`, () => {
+then the game board size should remain the same as before it was triggered
+  and the board size should remain the same as before`, () => {
+  const board = [
+    ["", "", "", "", "", ""],
+    ["", "", "", "", "", ""],
+    ["", "", "", "", "", ""],
+    ["", "", "", "", "", ""],
+    ["", "", "", "", "", ""],
+    ["", "", "", "", "", ""],
+  ];
   const gameState: GameState = {
-    ...getInitialGameState(),
-    numSquares: 6
-  }
+    ...initialGameState,
+    numSquares: 6,
+    board,
+  };
 
-  const finalGameState = reducer(gameState, { type: 'Reset' })
+  const finalGameState = reducer(gameState, { type: "Reset" });
 
   expect(finalGameState.numSquares).toEqual(gameState.numSquares);
-})
+  expect(finalGameState.board).toEqual(gameState.board);
+});
+
+describe(`determineInitialGameState`, () => {
+  test(`given that there's no state in localstorage
+  then the return value should be the default initialGameState`, () => {
+    const storage: Storage = {
+      readFromLocalStorage: jest.fn().mockReturnValue(undefined),
+      updateLocalStorage: jest.fn(),
+    };
+
+    expect(determineInitialGameState(storage, initialGameState)).toEqual(
+      initialGameState
+    );
+  });
+
+  test(`given that there's some saved state in localstorage
+  then the return value should be the saved state`, () => {
+    const stateInLocalStorage = {
+      ...initialGameState,
+      board: updateBoard(initialGameState.board, 0, 0, players[0].symbol),
+    };
+    const storage: Storage = {
+      readFromLocalStorage: jest.fn().mockReturnValue(stateInLocalStorage),
+      updateLocalStorage: jest.fn(),
+    };
+
+    expect(determineInitialGameState(storage, initialGameState)).toEqual(
+      stateInLocalStorage
+    );
+  });
+});
+
+test(`given that game is in progress
+when the user marks a square
+then the storage should be updated with the new state`, () => {
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+  const finalGameState = reducer(initialGameState, {
+    type: "MarkSquare",
+    data: { coords: [0, 0], players, storage },
+  });
+
+  expect(storage.updateLocalStorage).toHaveBeenCalledWith(finalGameState);
+});
