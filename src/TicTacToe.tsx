@@ -104,8 +104,8 @@ const RenderStatusText = ({
 
 const Wrapper = styled.div`
   padding: 10px;
-  min-width: 500px;
-  min-height: 500px;
+  min-width: 300px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,6 +144,7 @@ const ResetButton = styled.button`
   border: none;
   background: white;
   font-size: 16px;
+  color: black;
 `;
 
 const Label = styled.label`
