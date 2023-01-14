@@ -1,11 +1,6 @@
-import {
-  GameState,
-  Action,
-  ActionTypes,
-  UpdateGameSizeData,
-} from "./types";
+import { GameState, Action, ActionTypes, UpdateGameSizeData } from "./types";
 import { players, initialGameState } from "./constants";
-import { MarkSquareData } from "./types";
+import { MarkSquareData, ResetData } from "./types";
 import {
   createSquares,
   determineNextPlayer,
@@ -22,11 +17,17 @@ const reducerConfig: Record<
   ActionTypes,
   (state: GameState, data?: any) => GameState
 > = {
-  Reset: (state: GameState) => ({
-    ...initialGameState,
-    numSquares: state.numSquares,
-    board: createSquares(state.numSquares),
-  }),
+  Reset: (state: GameState, data: ResetData) => {
+    const updatedGameState = {
+      ...initialGameState,
+      numSquares: state.numSquares,
+      board: createSquares(state.numSquares),
+    };
+
+    data.storage.updateLocalStorage(updatedGameState);
+
+    return updatedGameState;
+  },
 
   MarkSquare: (state: GameState, data: MarkSquareData) => {
     const [x, y] = data.coords;

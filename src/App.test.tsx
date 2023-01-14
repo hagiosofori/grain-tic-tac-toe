@@ -68,7 +68,15 @@ then the squares should all become empty`, () => {
     board: updateBoard(initialGameState.board, 0, 0, "x"),
   };
 
-  const updatedGameState = reducer(gameState, { type: "Reset" });
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
+  const updatedGameState = reducer(gameState, {
+    type: "Reset",
+    data: { storage },
+  });
 
   expect(updatedGameState.board).toEqual(initialGameState.board);
 });
@@ -480,7 +488,15 @@ then the game board size should remain the same as before it was triggered
     board,
   };
 
-  const finalGameState = reducer(gameState, { type: "Reset" });
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
+  const finalGameState = reducer(gameState, {
+    type: "Reset",
+    data: { storage },
+  });
 
   expect(finalGameState.numSquares).toEqual(gameState.numSquares);
   expect(finalGameState.board).toEqual(gameState.board);
@@ -526,6 +542,22 @@ then the storage should be updated with the new state`, () => {
   const finalGameState = reducer(initialGameState, {
     type: "MarkSquare",
     data: { coords: [0, 0], players, storage },
+  });
+
+  expect(storage.updateLocalStorage).toHaveBeenCalledWith(finalGameState);
+});
+
+test(`given that the game is in progress
+when the user resets the game
+then the storage should be updated with the new state`, () => {
+  const storage: Storage = {
+    readFromLocalStorage: jest.fn(),
+    updateLocalStorage: jest.fn(),
+  };
+
+  const finalGameState = reducer(initialGameState, {
+    type: "Reset",
+    data: { storage },
   });
 
   expect(storage.updateLocalStorage).toHaveBeenCalledWith(finalGameState);
