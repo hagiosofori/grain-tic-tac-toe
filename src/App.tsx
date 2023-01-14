@@ -1,5 +1,6 @@
 import deepFreeze from "deep-freeze";
 import { useReducer } from "react";
+import styled from "styled-components";
 import "./App.css";
 import TicTacToe, { createSquares } from "./TicTacToe";
 import { GameState, Action, ActionTypes, Player, FoundWinner } from "./types";
@@ -7,10 +8,23 @@ import { GameState, Action, ActionTypes, Player, FoundWinner } from "./types";
 function App() {
   const [state, dispatch] = useReducer(reducer, initialGameState);
 
-  return <TicTacToe gameState={state} dispatch={dispatch} />;
+  return (
+    <Wrapper>
+      <TicTacToe gameState={state} dispatch={dispatch} />
+    </Wrapper>
+  );
 }
 
 export default App;
+
+const Wrapper = styled.div`
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  align-items: center;
+  justify-content: center;
+`;
 
 export const players: Player[] = [
   { name: "Player 1", symbol: "x" },
@@ -36,7 +50,10 @@ const reducerConfig: Record<
   ActionTypes,
   (state: GameState, data?: any) => GameState
 > = {
-  Reset: getInitialGameState,
+  Reset: (state: GameState) => ({
+    ...getInitialGameState(),
+    numSquares: state.numSquares,
+  }),
 
   MarkSquare: (
     state: GameState,
@@ -77,12 +94,9 @@ const reducerConfig: Record<
     };
   },
 
-  UpdateGameSize: (
-    state: GameState,
-    data: { value: GameState["numSquares"] }
-  ) => {
+  UpdateGameSize: (_: GameState, data: { value: GameState["numSquares"] }) => {
     return {
-      ...state,
+      ...getInitialGameState(),
       numSquares: data.value,
       board: createSquares(data.value),
     } as GameState;

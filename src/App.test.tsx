@@ -748,3 +748,16 @@ then the winning squares should be in winningSquares state`, () => {
     [2, 2],
   ]);
 });
+
+test(`given that the game is in progress
+when the reset action is triggered
+then the game board size should remain the same as before it was triggered`, () => {
+  const gameState: GameState = {
+    ...getInitialGameState(),
+    numSquares: 6
+  }
+
+  const finalGameState = reducer(gameState, { type: 'Reset' })
+
+  expect(finalGameState.numSquares).toEqual(gameState.numSquares);
+})
