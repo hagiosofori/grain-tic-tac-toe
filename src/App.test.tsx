@@ -89,7 +89,7 @@ then the reset action should be dispatched`, () => {
 
   const resetButton = screen.getByRole("button", { name: "Reset" });
   userEvent.click(resetButton);
-  expect(dispatch).toHaveBeenCalledWith({ type: "Reset" });
+  expect(dispatch).toHaveBeenCalledWith({ type: "Reset", data: { storage } });
 });
 
 test(`determineNextPlayer -- correctly determines the next player index based on current player and players list`, () => {
@@ -561,4 +561,15 @@ then the storage should be updated with the new state`, () => {
   });
 
   expect(storage.updateLocalStorage).toHaveBeenCalledWith(finalGameState);
+});
+
+test(`given that the game is in progress
+when the reset button is clicked
+then dispatch should be called with {storage}`, () => {
+  const dispatch = jest.fn();
+
+  render(<TicTacToe dispatch={dispatch} gameState={initialGameState} />);
+
+  userEvent.click(screen.getByRole("button", { name: "Reset" }));
+  expect(dispatch).toHaveBeenCalledWith({ type: "Reset", data: { storage } });
 });

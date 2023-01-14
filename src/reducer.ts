@@ -1,4 +1,9 @@
-import { GameState, Action, ActionTypes, UpdateGameSizeData } from "./types";
+import {
+  GameState,
+  Action,
+  ActionTypes,
+  UpdateGameSizeData,
+} from "./types";
 import { players, initialGameState } from "./constants";
 import { MarkSquareData, ResetData } from "./types";
 import {
@@ -15,7 +20,7 @@ export default function reducer(state: GameState, action: Action) {
 
 const reducerConfig: Record<
   ActionTypes,
-  (state: GameState, data?: any) => GameState
+  (state: GameState, data: any) => GameState
 > = {
   Reset: (state: GameState, data: ResetData) => {
     const updatedGameState = {

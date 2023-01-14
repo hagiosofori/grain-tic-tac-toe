@@ -39,9 +39,7 @@ export interface UpdateGameSizeData {
   value: GameState["numSquares"];
 }
 
-interface UpdateNumSquaresData {
-  numSquares: GameState["numSquares"];
-}
+export type ReducerData = ResetData | MarkSquareData | UpdateGameSizeData;
 
 export interface Storage {
   readFromLocalStorage: () => GameState | undefined;

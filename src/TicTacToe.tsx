@@ -34,7 +34,7 @@ function TicTacToe({
       </div>
       <ResetButton
         onClick={() => {
-          dispatch({ type: "Reset" });
+          dispatch({ type: "Reset", data: { storage } });
         }}
       >
         Reset
