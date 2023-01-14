@@ -104,8 +104,8 @@ const RenderStatusText = ({
 
 const Wrapper = styled.div`
   padding: 10px;
-  min-width: 300px;
-  min-height: 300px;
+  min-width: 100px;
+  min-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,8 +125,8 @@ const Table = styled.table`
 `;
 
 const Button = styled.button<{ isWinningSquare: boolean }>`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background: white;
   border: ${({ isWinningSquare }) =>
     `1px solid ${isWinningSquare ? "limegreen" : "black"}`};
