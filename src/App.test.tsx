@@ -27,6 +27,11 @@ const winningPatterns = [
       ["", "o", "", "x", "", ""],
       ["", "", "o", "x", "o", ""],
     ],
+    winningSquares: [
+      [3, 3],
+      [3, 4],
+      [3, 5],
+    ],
     symbol: "o",
   },
   {
@@ -39,7 +44,11 @@ const winningPatterns = [
       ["", "o", "", "x", ""],
       ["", "", "o", "o", "o"],
     ],
-
+    winningSquares: [
+      [4, 2],
+      [4, 3],
+      [4, 4],
+    ],
     symbol: "o",
   },
   {
@@ -51,7 +60,11 @@ const winningPatterns = [
       ["", "o", "", "x"],
       ["", "o", "", ""],
     ],
-
+    winningSquares: [
+      [1, 1],
+      [1, 2],
+      [1, 3],
+    ],
     symbol: "x",
   },
   {
@@ -62,7 +75,11 @@ const winningPatterns = [
       ["", "x", ""],
       ["o", "o", "o"],
     ],
-
+    winningSquares: [
+      [2, 0],
+      [2, 1],
+      [2, 2],
+    ],
     symbol: "o",
   },
 
@@ -78,6 +95,7 @@ const winningPatterns = [
       ["", "o", "", "x", "", ""],
       ["", "", "o", "x", "o", ""],
     ],
+    winningSquares: null,
     symbol: "o",
   },
   {
@@ -90,7 +108,7 @@ const winningPatterns = [
       ["", "o", "", "x", ""],
       ["", "", "o", "", "o"],
     ],
-
+    winningSquares: null,
     symbol: "o",
   },
   {
@@ -102,7 +120,7 @@ const winningPatterns = [
       ["", "o", "", "x"],
       ["", "o", "", ""],
     ],
-
+    winningSquares: null,
     symbol: "x",
   },
   {
@@ -113,7 +131,7 @@ const winningPatterns = [
       ["", "x", ""],
       ["o", "", "o"],
     ],
-
+    winningSquares: null,
     symbol: "o",
   },
 
@@ -125,6 +143,11 @@ const winningPatterns = [
       ["x", "", "o"],
       ["", "x", "o"],
       ["o", "x", "o"],
+    ],
+    winningSquares: [
+      [0, 2],
+      [1, 2],
+      [2, 2],
     ],
 
     symbol: "o",
@@ -138,7 +161,11 @@ const winningPatterns = [
       ["o", "x", "o", ""],
       ["o", "o", "x", ""],
     ],
-
+    winningSquares: [
+      [1, 0],
+      [2, 0],
+      [3, 0],
+    ],
     symbol: "o",
   },
   {
@@ -149,9 +176,13 @@ const winningPatterns = [
       ["", "x", "", "", ""],
       ["", "o", "o", "", ""],
       ["x", "x", "o", "", ""],
-      ["o", "o", "o", "", ""],
+      ["x", "o", "o", "", ""],
     ],
-
+    winningSquares: [
+      [2, 2],
+      [3, 2],
+      [4, 2],
+    ],
     symbol: "o",
   },
   {
@@ -160,12 +191,16 @@ const winningPatterns = [
     board: [
       ["x", "", "x", "", "", ""],
       ["", "x", "", "", "", ""],
-      ["o", "o", "o", "", "", ""],
+      ["o", "", "o", "", "", ""],
       ["x", "x", "o", "", "o", ""],
       ["o", "x", "o", "", "", ""],
       ["o", "o", "", "", "", ""],
     ],
-
+    winningSquares: [
+      [2, 2],
+      [3, 2],
+      [4, 2],
+    ],
     symbol: "o",
   },
 
@@ -178,7 +213,11 @@ const winningPatterns = [
       ["", "x", "x"],
       ["o", "o", "x"],
     ],
-
+    winningSquares: [
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ],
     symbol: "x",
   },
   {
@@ -190,7 +229,11 @@ const winningPatterns = [
       ["x", "", "x", ""],
       ["x", "o", "x", "x"],
     ],
-
+    winningSquares: [
+      [1, 1],
+      [2, 2],
+      [3, 3],
+    ],
     symbol: "x",
   },
   {
@@ -203,7 +246,11 @@ const winningPatterns = [
       ["x", "x", "", "", "o"],
       ["o", "o", "x", "", ""],
     ],
-
+    winningSquares: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+    ],
     symbol: "o",
   },
   {
@@ -217,7 +264,11 @@ const winningPatterns = [
       ["o", "x", "o", "", "", ""],
       ["o", "o", "", "", "", ""],
     ],
-
+    winningSquares: [
+      [1, 3],
+      [2, 4],
+      [3, 5],
+    ],
     symbol: "o",
   },
 
@@ -230,7 +281,11 @@ const winningPatterns = [
       ["", "x", "o"],
       ["x", "o", "x"],
     ],
-
+    winningSquares: [
+      [0, 2],
+      [1, 1],
+      [2, 0],
+    ],
     symbol: "x",
   },
   {
@@ -242,7 +297,11 @@ const winningPatterns = [
       ["x", "o", "", ""],
       ["o", "o", "x", "x"],
     ],
-
+    winningSquares: [
+      [1, 2],
+      [2, 1],
+      [3, 0],
+    ],
     symbol: "o",
   },
   {
@@ -255,7 +314,11 @@ const winningPatterns = [
       ["x", "x", "o", "", "o"],
       ["o", "o", "x", "", ""],
     ],
-
+    winningSquares: [
+      [2, 3],
+      [3, 2],
+      [4, 1],
+    ],
     symbol: "o",
   },
   {
@@ -269,7 +332,11 @@ const winningPatterns = [
       ["o", "x", "o", "", "", ""],
       ["o", "o", "", "", "", ""],
     ],
-
+    winningSquares: [
+      [0, 4],
+      [1, 3],
+      [2, 2],
+    ],
     symbol: "o",
   },
 ];
@@ -284,10 +351,10 @@ then the squares should all be empty`, async () => {
   });
 });
 
-// property based test. commented out cos it takes a long time to run
+// property based test. commented out cos it takes a lot of time and memory to run
 // test(`createSquares - creates the correct dimension of squares`, () =>
 //   fc.assert(
-//     fc.property(fc.integer({min: 0}), (dimension) => {
+//     fc.property(fc.integer(), (dimension) => {
 //       const squares = createSquares(dimension);
 //       const outerArrayHasCorrectLength = squares.length === dimension;
 //       const innerArraysHaveCorrectLength = squares.reduce((acc, each) => {
@@ -320,7 +387,7 @@ then the squares should all become empty`, () => {
   const initialGameState = getInitialGameState();
   const gameState = {
     ...initialGameState,
-    board: [["x", "x", "o"], ...createSquares(initialGameState.numSquares - 1)],
+    board: updateBoard(initialGameState.board, 0, 0, "x"),
   };
 
   const updatedGameState = reducer(gameState, { type: "Reset" });
@@ -525,12 +592,15 @@ describe("findWinner fn", () => {
     test(`${pattern.name} 
     given that the game is in progress
     when the game state contains a winning pattern for player x,
-    then the game should show player x as the winner`, () => {
-      const { isFoundWinner } = findWinner(pattern.board, pattern.symbol);
+    then the game should show player x as the winner
+      and the returned winningSquares should be accurate`, () => {
+      const { isFoundWinner, winningSquares } = findWinner(
+        pattern.board,
+        pattern.symbol
+      );
       expect(isFoundWinner).toEqual(pattern.result);
+      expect(winningSquares).toEqual(pattern.winningSquares);
     });
-
-    test.todo(`${pattern.name} confirm that the winning squares are correct`);
   });
 });
 
