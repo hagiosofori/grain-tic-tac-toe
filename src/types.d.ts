@@ -41,6 +41,6 @@ interface UpdateNumSquaresData {
 }
 
 export interface Storage {
-  readFromLocalStorage: () => GameState;
+  readFromLocalStorage: () => GameState | undefined;
   updateLocalStorage: (gameState: GameState) => void;
 }

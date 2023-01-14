@@ -4,3 +4,4 @@ export {default as determineNextPlayer} from "./determineNextPlayer";
 export { default as createSquares } from './createSquares';
 export { default as isWinningSquare } from './isWinningSquare'
 export { default as storage } from './storage'
+export { default as determineInitialGameState } from './determineInitialGameState'

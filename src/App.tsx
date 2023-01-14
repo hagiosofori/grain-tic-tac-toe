@@ -3,9 +3,13 @@ import styled from "styled-components";
 import { initialGameState } from "./constants";
 import reducer from "./reducer";
 import TicTacToe from "./TicTacToe";
+import { determineInitialGameState, storage } from "./helpers";
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialGameState);
+  const [state, dispatch] = useReducer(
+    reducer,
+    determineInitialGameState(storage, initialGameState)
+  );
 
   return (
     <Wrapper>

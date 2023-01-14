@@ -5,8 +5,13 @@ function updateLocalStorage(gameState: GameState) {
   localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(gameState));
 }
 
-function readFromLocalStorage(): GameState {
-  return JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || "");
+function readFromLocalStorage(): GameState | undefined {
+  try {
+    const state: GameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || "");
+    return state;
+  } catch (e) {
+    return undefined
+  }
 }
 
 const exports: Storage = {
