@@ -1,4 +1,4 @@
-### tic-tac-toe game implemented in React by Alvin Seyram Ofori, as part of Grain frontend developer interview assessment
+### implemented in React by Alvin Seyram Ofori
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/72403e8b-2e30-48d0-b14f-6c80d6fdc1da/deploy-status)](https://app.netlify.com/sites/alvin-seyram-ofori-grain-tictactoe/deploys)
 
